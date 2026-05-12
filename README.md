@@ -43,3 +43,10 @@ docker compose -f infra/docker/docker-compose.yml up -d
 - Test baseline
 - Container stack for Kafka, PostgreSQL, and Redis
 - CI workflow and quality gates baseline
+
+## Milestone 1 scope
+
+- Disruption domain models and scoring service
+- Shared case and recommendation response contracts
+- Seeded read API for cases, recommendations, and message previews
+- OpenAPI UI dependency for endpoint inspection
