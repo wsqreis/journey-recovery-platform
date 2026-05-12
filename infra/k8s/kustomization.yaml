@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: journey-recovery
+resources:
+  - namespace.yaml
+  - postgres-config.yaml
+  - postgres-deployment.yaml
+  - redis-deployment.yaml
+  - kafka-deployment.yaml
+  - experience-api-deployment.yaml
+  - decision-worker-deployment.yaml

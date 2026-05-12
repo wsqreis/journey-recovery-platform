@@ -22,6 +22,12 @@ anthropic:
 
 server:
   port: 8080
+  shutdown: graceful
+
+logging:
+  structured:
+    format:
+      console: ecs
 
 management:
   endpoints:
@@ -32,6 +38,11 @@ management:
     health:
       probes:
         enabled: true
+      show-details: always
+  metrics:
+    tags:
+      application: experience-api
+      service: journey-recovery
   tracing:
     sampling:
       probability: 1.0

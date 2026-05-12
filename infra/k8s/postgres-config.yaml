@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: journey-recovery-postgres-config
+  namespace: journey-recovery
+data:
+  POSTGRES_DB: journey_recovery
+  POSTGRES_USER: recovery
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: journey-recovery-postgres-secret
+  namespace: journey-recovery
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: recovery

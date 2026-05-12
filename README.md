@@ -36,6 +36,28 @@ gradle bootRun --project-dir apps/decision-worker
 docker compose -f infra/docker/docker-compose.yml up -d
 ```
 
+### Build service images
+
+```bash
+docker build -f apps/experience-api/Dockerfile -t journey-recovery/experience-api:local .
+```
+
+```bash
+docker build -f apps/decision-worker/Dockerfile -t journey-recovery/decision-worker:local .
+```
+
+### Apply Kubernetes manifests
+
+```bash
+kubectl apply -k infra/k8s
+```
+
+## Observability
+
+- Health probes: `/actuator/health/liveness` and `/actuator/health/readiness`
+- Metrics: `/actuator/prometheus`
+- Structured logs: ECS JSON on stdout
+
 ## Milestone 0 scope
 
 - Multi-module Gradle build
@@ -72,3 +94,10 @@ docker compose -f infra/docker/docker-compose.yml up -d
 - Prompt caching on the stable instruction prefix
 - Structured draft response parsing with deterministic fallback behavior
 - API preview endpoint kept off the core decision path
+
+## Milestone 5 scope
+
+- Container packaging for both deployable services
+- Kubernetes manifests for services and shared dependencies
+- Structured logging, health probes, and tagged metrics
+- CI image builds for the hardened deployment path

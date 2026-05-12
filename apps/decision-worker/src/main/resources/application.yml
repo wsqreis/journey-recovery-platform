@@ -26,6 +26,15 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+server:
+  port: 8080
+  shutdown: graceful
+
+logging:
+  structured:
+    format:
+      console: ecs
+
 management:
   endpoints:
     web:
@@ -35,6 +44,11 @@ management:
     health:
       probes:
         enabled: true
+      show-details: always
+  metrics:
+    tags:
+      application: decision-worker
+      service: journey-recovery
   tracing:
     sampling:
       probability: 1.0

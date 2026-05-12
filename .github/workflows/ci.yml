@@ -26,3 +26,9 @@ jobs:
 
       - name: Run checks
         run: ./gradlew clean check
+
+      - name: Build experience-api image
+        run: docker build -f apps/experience-api/Dockerfile -t journey-recovery/experience-api:ci .
+
+      - name: Build decision-worker image
+        run: docker build -f apps/decision-worker/Dockerfile -t journey-recovery/decision-worker:ci .
