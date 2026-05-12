@@ -19,9 +19,11 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.kafka.core.KafkaTemplate;
 
 class CaseUpdateServiceTests {
-    private final StoredDisruptionCaseStore disruptionCaseStore = org.mockito.Mockito.mock(StoredDisruptionCaseStore.class);
+    private final StoredDisruptionCaseStore disruptionCaseStore =
+            org.mockito.Mockito.mock(StoredDisruptionCaseStore.class);
     private final StoredTripSegmentStore tripSegmentStore = org.mockito.Mockito.mock(StoredTripSegmentStore.class);
-    private final KafkaTemplate<String, RecommendationEvent> kafkaTemplate = org.mockito.Mockito.mock(KafkaTemplate.class);
+    private final KafkaTemplate<String, RecommendationEvent> kafkaTemplate =
+            org.mockito.Mockito.mock(KafkaTemplate.class);
     private final CaseUpdateService caseUpdateService =
             new CaseUpdateService(new NextBestActionService(), disruptionCaseStore, tripSegmentStore, kafkaTemplate);
 
@@ -48,7 +50,9 @@ class CaseUpdateServiceTests {
                         OffsetDateTime.of(2026, 5, 12, 12, 20, 0, 0, ZoneOffset.UTC))));
 
         RecommendationEvent sendResult = new RecommendationEvent("case-001", null);
-        willReturn(null).given(kafkaTemplate).send(eq("recommendation-events"), eq("case-001"), any(RecommendationEvent.class));
+        willReturn(null)
+                .given(kafkaTemplate)
+                .send(eq("recommendation-events"), eq("case-001"), any(RecommendationEvent.class));
 
         var recommendation = caseUpdateService.apply(disruptionEvent);
 

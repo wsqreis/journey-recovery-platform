@@ -70,7 +70,9 @@ public class CaseUpdateService {
                 disruptionEvent.overnightImpact(),
                 disruptionEvent.highValueItinerary(),
                 toCustomerProfile(disruptionEvent.customer()),
-                disruptionEvent.impactedSegments().stream().map(this::toTripSegment).toList());
+                disruptionEvent.impactedSegments().stream()
+                        .map(this::toTripSegment)
+                        .toList());
     }
 
     private CustomerProfile toCustomerProfile(CustomerProfileResponse customerProfileResponse) {
