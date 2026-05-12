@@ -33,7 +33,6 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "jacoco")
     apply(plugin = "checkstyle")
-    apply(plugin = "com.diffplug.spotless")
     apply(plugin = "io.spring.dependency-management")
 
     configure<JavaPluginExtension> {
@@ -66,18 +65,6 @@ subprojects {
         configFile = rootProject.file("config/checkstyle/checkstyle.xml")
     }
 
-    spotless {
-        java {
-            target("src/*/java/**/*.java")
-            palantirJavaFormat("2.61.0")
-            trimTrailingWhitespace()
-            endWithNewline()
-        }
-        kotlinGradle {
-            target("*.gradle.kts", "**/*.gradle.kts")
-            ktlint("1.7.1")
-        }
-    }
 }
 
 tasks.register("qualityCheck") {
