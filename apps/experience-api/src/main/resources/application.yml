@@ -1,6 +1,13 @@
 spring:
   application:
     name: experience-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/journey_recovery
+    username: recovery
+    password: recovery
+  sql:
+    init:
+      mode: always
 
 server:
   port: 8080

@@ -50,3 +50,11 @@ docker compose -f infra/docker/docker-compose.yml up -d
 - Shared case and recommendation response contracts
 - Seeded read API for cases, recommendations, and message previews
 - OpenAPI UI dependency for endpoint inspection
+
+## Milestone 2 scope
+
+- Versioned disruption and recommendation event contracts
+- Kafka-driven case ingestion in the decision worker
+- PostgreSQL-backed case and segment persistence
+- Redis-based duplicate-event protection
+- Database-backed read API integration tests

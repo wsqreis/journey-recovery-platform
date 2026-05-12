@@ -9,8 +9,8 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.kafka:spring-kafka")
-    implementation("io.lettuce:lettuce-core")
     implementation("io.micrometer:micrometer-tracing-bridge-otel")
     runtimeOnly("org.postgresql:postgresql")
 

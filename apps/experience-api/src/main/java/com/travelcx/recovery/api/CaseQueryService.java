@@ -5,138 +5,76 @@ import com.travelcx.recovery.contracts.DisruptionCaseResponse;
 import com.travelcx.recovery.contracts.DraftMessageResponse;
 import com.travelcx.recovery.contracts.RecommendationResponse;
 import com.travelcx.recovery.contracts.TripSegmentResponse;
-import com.travelcx.recovery.domain.CustomerProfile;
-import com.travelcx.recovery.domain.DisruptionCase;
-import com.travelcx.recovery.domain.DisruptionType;
-import com.travelcx.recovery.domain.NextBestActionService;
-import com.travelcx.recovery.domain.Recommendation;
-import com.travelcx.recovery.domain.TripSegment;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CaseQueryService {
-    private final NextBestActionService nextBestActionService;
-    private final Map<String, DisruptionCase> cases;
+    private final StoredDisruptionCaseStore disruptionCaseStore;
+    private final StoredTripSegmentStore tripSegmentStore;
 
-    public CaseQueryService(NextBestActionService nextBestActionService) {
-        this.nextBestActionService = nextBestActionService;
-        this.cases = seedCases();
+    public CaseQueryService(
+            StoredDisruptionCaseStore disruptionCaseStore,
+            StoredTripSegmentStore tripSegmentStore) {
+        this.disruptionCaseStore = disruptionCaseStore;
+        this.tripSegmentStore = tripSegmentStore;
     }
 
     public DisruptionCaseResponse getCase(String caseId) {
-        return toCaseResponse(findCase(caseId));
+        StoredDisruptionCase storedDisruptionCase = findCase(caseId);
+        return new DisruptionCaseResponse(
+                storedDisruptionCase.caseId(),
+                storedDisruptionCase.bookingReference(),
+                storedDisruptionCase.disruptionType(),
+                storedDisruptionCase.detectedAt(),
+                storedDisruptionCase.impactedPassengers(),
+                storedDisruptionCase.delayMinutes(),
+                storedDisruptionCase.connectionAtRisk(),
+                storedDisruptionCase.overnightImpact(),
+                new CustomerProfileResponse(
+                        storedDisruptionCase.customerId(),
+                        storedDisruptionCase.customerFullName(),
+                        storedDisruptionCase.loyaltyTier(),
+                        storedDisruptionCase.travelingWithChildren(),
+                        storedDisruptionCase.requiresAccessibilitySupport()),
+                tripSegmentStore.findByCaseId(caseId).stream().map(this::toSegmentResponse).toList());
     }
 
     public RecommendationResponse getRecommendation(String caseId) {
-        Recommendation recommendation = nextBestActionService.recommend(findCase(caseId));
-        return toRecommendationResponse(recommendation);
+        StoredDisruptionCase storedDisruptionCase = findCase(caseId);
+        return new RecommendationResponse(
+                storedDisruptionCase.recommendationAction(),
+                storedDisruptionCase.recommendationScore(),
+                storedDisruptionCase.recommendationSummary(),
+                storedDisruptionCase.recommendationExplanation(),
+                RecommendationReasons.parse(storedDisruptionCase.recommendationReasons()));
     }
 
     public DraftMessageResponse previewDraft(String caseId) {
-        DisruptionCase disruptionCase = findCase(caseId);
-        Recommendation recommendation = nextBestActionService.recommend(disruptionCase);
+        StoredDisruptionCase storedDisruptionCase = findCase(caseId);
         String draftMessage = "Hello %s, we detected a %s on booking %s. Our current recommendation is to %s. %s"
                 .formatted(
-                        disruptionCase.customerProfile().fullName(),
-                        disruptionCase.disruptionType().name().toLowerCase().replace('_', ' '),
-                        disruptionCase.bookingReference(),
-                        recommendation.action().name().toLowerCase().replace('_', ' '),
-                        recommendation.summary());
-        return new DraftMessageResponse(disruptionCase.caseId(), draftMessage);
+                        storedDisruptionCase.customerFullName(),
+                        storedDisruptionCase.disruptionType().toLowerCase().replace('_', ' '),
+                        storedDisruptionCase.bookingReference(),
+                        storedDisruptionCase.recommendationAction().toLowerCase().replace('_', ' '),
+                        storedDisruptionCase.recommendationSummary());
+        return new DraftMessageResponse(caseId, draftMessage);
     }
 
-    private DisruptionCase findCase(String caseId) {
-        DisruptionCase disruptionCase = cases.get(caseId);
-        if (disruptionCase == null) {
-            throw new NoSuchElementException("Case not found: " + caseId);
-        }
-        return disruptionCase;
+    private StoredDisruptionCase findCase(String caseId) {
+        return disruptionCaseStore.findById(caseId)
+                .orElseThrow(() -> new NoSuchElementException("Case not found: " + caseId));
     }
 
-    private DisruptionCaseResponse toCaseResponse(DisruptionCase disruptionCase) {
-        return new DisruptionCaseResponse(
-                disruptionCase.caseId(),
-                disruptionCase.bookingReference(),
-                disruptionCase.disruptionType().name(),
-                disruptionCase.detectedAt(),
-                disruptionCase.impactedPassengers(),
-                disruptionCase.delayMinutes(),
-                disruptionCase.connectionAtRisk(),
-                disruptionCase.overnightImpact(),
-                toCustomerResponse(disruptionCase.customerProfile()),
-                disruptionCase.impactedSegments().stream().map(this::toSegmentResponse).toList());
-    }
-
-    private CustomerProfileResponse toCustomerResponse(CustomerProfile customerProfile) {
-        return new CustomerProfileResponse(
-                customerProfile.customerId(),
-                customerProfile.fullName(),
-                customerProfile.loyaltyTier(),
-                customerProfile.travelingWithChildren(),
-                customerProfile.requiresAccessibilitySupport());
-    }
-
-    private TripSegmentResponse toSegmentResponse(TripSegment tripSegment) {
+    private TripSegmentResponse toSegmentResponse(StoredTripSegment storedTripSegment) {
         return new TripSegmentResponse(
-                tripSegment.origin(),
-                tripSegment.destination(),
-                tripSegment.marketingCarrier(),
-                tripSegment.flightNumber(),
-                tripSegment.scheduledDepartureAt(),
-                tripSegment.scheduledArrivalAt());
-    }
-
-    private RecommendationResponse toRecommendationResponse(Recommendation recommendation) {
-        return new RecommendationResponse(
-                recommendation.action().name(),
-                recommendation.score(),
-                recommendation.summary(),
-                recommendation.explanation(),
-                recommendation.reasons());
-    }
-
-    private Map<String, DisruptionCase> seedCases() {
-        DisruptionCase caseOne = new DisruptionCase(
-                "case-001",
-                "BR1234",
-                DisruptionType.FLIGHT_DELAY,
-                OffsetDateTime.of(2026, 5, 12, 10, 15, 0, 0, ZoneOffset.UTC),
-                2,
-                95,
-                true,
-                false,
-                new CustomerProfile("cust-1", "Taylor Rivera", "PRIME", false, false),
-                List.of(new TripSegment(
-                        "MAD",
-                        "BCN",
-                        "IB",
-                        "IB411",
-                        OffsetDateTime.of(2026, 5, 12, 11, 0, 0, 0, ZoneOffset.UTC),
-                        OffsetDateTime.of(2026, 5, 12, 12, 20, 0, 0, ZoneOffset.UTC))));
-
-        DisruptionCase caseTwo = new DisruptionCase(
-                "case-002",
-                "ZX9012",
-                DisruptionType.FLIGHT_CANCELLATION,
-                OffsetDateTime.of(2026, 5, 12, 8, 40, 0, 0, ZoneOffset.UTC),
-                3,
-                260,
-                true,
-                true,
-                new CustomerProfile("cust-2", "Alex Kim", "CLASSIC", true, false),
-                List.of(new TripSegment(
-                        "BCN",
-                        "CDG",
-                        "VY",
-                        "VY8240",
-                        OffsetDateTime.of(2026, 5, 12, 9, 10, 0, 0, ZoneOffset.UTC),
-                        OffsetDateTime.of(2026, 5, 12, 11, 5, 0, 0, ZoneOffset.UTC))));
-
-        return Map.of(caseOne.caseId(), caseOne, caseTwo.caseId(), caseTwo);
+                storedTripSegment.origin(),
+                storedTripSegment.destination(),
+                storedTripSegment.marketingCarrier(),
+                storedTripSegment.flightNumber(),
+                storedTripSegment.scheduledDepartureAt(),
+                storedTripSegment.scheduledArrivalAt());
     }
 }

@@ -1,6 +1,30 @@
 spring:
   application:
     name: decision-worker
+  datasource:
+    url: jdbc:postgresql://localhost:5432/journey_recovery
+    username: recovery
+    password: recovery
+  sql:
+    init:
+      mode: always
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      group-id: decision-worker
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.travelcx.recovery.contracts
+        spring.json.value.default.type: com.travelcx.recovery.contracts.DisruptionEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 management:
   endpoints:
