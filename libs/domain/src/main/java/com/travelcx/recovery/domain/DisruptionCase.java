@@ -13,6 +13,7 @@ public record DisruptionCase(
         int delayMinutes,
         boolean connectionAtRisk,
         boolean overnightImpact,
+        boolean highValueItinerary,
         CustomerProfile customerProfile,
         List<TripSegment> impactedSegments) {
     public Duration disruptionDuration() {

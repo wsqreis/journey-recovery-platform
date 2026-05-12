@@ -49,6 +49,7 @@ public class CaseUpdateService {
                 recommendation.score(),
                 recommendation.summary(),
                 recommendation.explanation(),
+                RecommendationContextMapper.fromRecommendation(recommendation),
                 recommendation.reasons());
         recommendationEventKafkaTemplate.send(
                 "recommendation-events",
@@ -67,6 +68,7 @@ public class CaseUpdateService {
                 disruptionEvent.delayMinutes(),
                 disruptionEvent.connectionAtRisk(),
                 disruptionEvent.overnightImpact(),
+                disruptionEvent.highValueItinerary(),
                 toCustomerProfile(disruptionEvent.customer()),
                 disruptionEvent.impactedSegments().stream().map(this::toTripSegment).toList());
     }
@@ -77,7 +79,9 @@ public class CaseUpdateService {
                 customerProfileResponse.fullName(),
                 customerProfileResponse.loyaltyTier(),
                 customerProfileResponse.travelingWithChildren(),
-                customerProfileResponse.requiresAccessibilitySupport());
+                customerProfileResponse.requiresAccessibilitySupport(),
+                customerProfileResponse.vipCustomer(),
+                customerProfileResponse.corporateTraveler());
     }
 
     private TripSegment toTripSegment(TripSegmentResponse tripSegmentResponse) {
@@ -101,15 +105,22 @@ public class CaseUpdateService {
                 disruptionCase.delayMinutes(),
                 disruptionCase.connectionAtRisk(),
                 disruptionCase.overnightImpact(),
+                disruptionCase.highValueItinerary(),
                 disruptionCase.customerProfile().customerId(),
                 disruptionCase.customerProfile().fullName(),
                 disruptionCase.customerProfile().loyaltyTier(),
                 disruptionCase.customerProfile().travelingWithChildren(),
                 disruptionCase.customerProfile().requiresAccessibilitySupport(),
+                disruptionCase.customerProfile().vipCustomer(),
+                disruptionCase.customerProfile().corporateTraveler(),
                 recommendation.action().name(),
                 recommendation.score(),
                 recommendation.summary(),
                 recommendation.explanation(),
+                recommendation.context().priority().name(),
+                recommendation.context().slaBucket(),
+                recommendation.context().humanReviewRequired(),
+                recommendation.context().premiumCustomer(),
                 String.join("||", recommendation.reasons()),
                 updatedAt);
     }

@@ -5,4 +5,6 @@ public record CustomerProfile(
         String fullName,
         String loyaltyTier,
         boolean travelingWithChildren,
-        boolean requiresAccessibilitySupport) {}
+        boolean requiresAccessibilitySupport,
+        boolean vipCustomer,
+        boolean corporateTraveler) {}

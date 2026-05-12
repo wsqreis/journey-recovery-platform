@@ -7,4 +7,5 @@ public record Recommendation(
         int score,
         String summary,
         String explanation,
+        RecommendationContext context,
         List<String> reasons) {}

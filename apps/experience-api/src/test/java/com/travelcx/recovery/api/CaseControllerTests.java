@@ -41,7 +41,8 @@ class CaseControllerTests {
                 95,
                 true,
                 false,
-                new CustomerProfileResponse("cust-1", "Taylor Rivera", "PRIME", false, false),
+                true,
+                new CustomerProfileResponse("cust-1", "Taylor Rivera", "PRIME", false, false, true, false),
                 List.of(new TripSegmentResponse(
                         "MAD",
                         "BCN",
@@ -65,6 +66,8 @@ class CaseControllerTests {
                         110,
                         "Offer an alternative itinerary before customer effort increases.",
                         "A missed connection risk makes itinerary recovery time-sensitive.",
+                        new com.travelcx.recovery.contracts.RecommendationContextResponse(
+                                "CRITICAL", "15_MINUTES", true, true),
                         List.of("A missed connection risk makes itinerary recovery time-sensitive.")));
 
         mockMvc.perform(get("/api/cases/case-002/recommendation"))

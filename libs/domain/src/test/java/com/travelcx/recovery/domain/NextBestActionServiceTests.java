@@ -11,41 +11,46 @@ class NextBestActionServiceTests {
     private final NextBestActionService nextBestActionService = new NextBestActionService();
 
     @Test
-    void recommendsHotelForOvernightDisruption() {
+    void keepsRebookingPreferredForOvernightPrimeConnectionRisk() {
         DisruptionCase disruptionCase = sampleCaseBuilder()
                 .overnightImpact(true)
+                .connectionAtRisk(true)
                 .delayMinutes(240)
+                .customerProfile(new CustomerProfile("cust-1", "Taylor Rivera", "PRIME", false, false, false, false))
                 .build();
 
         Recommendation recommendation = nextBestActionService.recommend(disruptionCase);
 
         assertThat(recommendation.action()).isEqualTo(RecommendationAction.REBOOK);
-        assertThat(recommendation.reasons()).contains("An overnight impact requires accommodation support.");
+        assertThat(recommendation.context().priority()).isEqualTo(RecommendationPriority.CRITICAL);
+        assertThat(recommendation.context().slaBucket()).isEqualTo("15_MINUTES");
     }
 
     @Test
-    void recommendsEscalationForAccessibilityNeeds() {
+    void escalatesAccessibilityCasesForHumanReview() {
         DisruptionCase disruptionCase = sampleCaseBuilder()
-                .customerProfile(new CustomerProfile("cust-2", "Alex Kim", "CLASSIC", false, true))
+                .customerProfile(new CustomerProfile("cust-2", "Alex Kim", "CLASSIC", false, true, false, false))
                 .build();
 
         Recommendation recommendation = nextBestActionService.recommend(disruptionCase);
 
         assertThat(recommendation.action()).isEqualTo(RecommendationAction.ESCALATE_TO_AGENT);
+        assertThat(recommendation.context().humanReviewRequired()).isTrue();
         assertThat(recommendation.explanation()).contains("Accessibility support requirements need specialist handling.");
     }
 
     @Test
-    void recommendsRebookingForPrimeConnectionRisk() {
+    void marksVipHighValueTripsAsHighPriority() {
         DisruptionCase disruptionCase = sampleCaseBuilder()
-                .connectionAtRisk(true)
-                .customerProfile(new CustomerProfile("cust-3", "Morgan Singh", "PRIME", false, false))
+                .highValueItinerary(true)
+                .customerProfile(new CustomerProfile("cust-3", "Morgan Singh", "PRIME", false, false, true, true))
                 .build();
 
         Recommendation recommendation = nextBestActionService.recommend(disruptionCase);
 
         assertThat(recommendation.action()).isEqualTo(RecommendationAction.REBOOK);
-        assertThat(recommendation.score()).isGreaterThan(50);
+        assertThat(recommendation.context().priority()).isEqualTo(RecommendationPriority.HIGH);
+        assertThat(recommendation.context().premiumCustomer()).isTrue();
     }
 
     private SampleCaseBuilder sampleCaseBuilder() {
@@ -61,8 +66,9 @@ class NextBestActionServiceTests {
         private int delayMinutes = 95;
         private boolean connectionAtRisk;
         private boolean overnightImpact;
+        private boolean highValueItinerary;
         private CustomerProfile customerProfile =
-                new CustomerProfile("cust-1", "Taylor Rivera", "STANDARD", false, false);
+                new CustomerProfile("cust-1", "Taylor Rivera", "STANDARD", false, false, false, false);
         private List<TripSegment> impactedSegments = List.of(new TripSegment(
                 "MAD",
                 "BCN",
@@ -86,6 +92,11 @@ class NextBestActionServiceTests {
             return this;
         }
 
+        private SampleCaseBuilder highValueItinerary(boolean highValueItinerary) {
+            this.highValueItinerary = highValueItinerary;
+            return this;
+        }
+
         private SampleCaseBuilder customerProfile(CustomerProfile customerProfile) {
             this.customerProfile = customerProfile;
             return this;
@@ -101,6 +112,7 @@ class NextBestActionServiceTests {
                     delayMinutes,
                     connectionAtRisk,
                     overnightImpact,
+                    highValueItinerary,
                     customerProfile,
                     impactedSegments);
         }

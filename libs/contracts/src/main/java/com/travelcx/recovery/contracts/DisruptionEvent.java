@@ -13,5 +13,6 @@ public record DisruptionEvent(
         int delayMinutes,
         boolean connectionAtRisk,
         boolean overnightImpact,
+        boolean highValueItinerary,
         CustomerProfileResponse customer,
         List<TripSegmentResponse> impactedSegments) {}

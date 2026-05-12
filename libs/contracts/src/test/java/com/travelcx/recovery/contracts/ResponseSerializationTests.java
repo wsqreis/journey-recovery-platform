@@ -18,6 +18,7 @@ class ResponseSerializationTests {
                 85,
                 "Offer an alternative itinerary.",
                 "Connection risk requires action.",
+                new RecommendationContextResponse("HIGH", "60_MINUTES", false, true),
                 List.of("Connection risk requires action."));
 
         String json = objectMapper.writeValueAsString(response);
@@ -37,7 +38,8 @@ class ResponseSerializationTests {
                 95,
                 true,
                 false,
-                new CustomerProfileResponse("cust-1", "Taylor Rivera", "PRIME", false, false),
+                true,
+                new CustomerProfileResponse("cust-1", "Taylor Rivera", "PRIME", false, false, true, false),
                 List.of(new TripSegmentResponse(
                         "MAD",
                         "BCN",
@@ -49,6 +51,7 @@ class ResponseSerializationTests {
         String json = objectMapper.writeValueAsString(response);
 
         assertThat(json).contains("\"caseId\":\"case-001\"");
+        assertThat(json).contains("\"highValueItinerary\":true");
         assertThat(json).contains("\"customer\"");
         assertThat(json).contains("\"impactedSegments\"");
     }

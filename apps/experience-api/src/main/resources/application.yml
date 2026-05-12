@@ -5,6 +5,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/journey_recovery
     username: recovery
     password: recovery
+  data:
+    redis:
+      host: localhost
+      port: 6379
   sql:
     init:
       mode: always
