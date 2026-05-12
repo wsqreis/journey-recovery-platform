@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CaseQueryService {
     private final CaseCacheService caseCacheService;
+    private final DraftMessageService draftMessageService;
 
-    public CaseQueryService(CaseCacheService caseCacheService) {
+    public CaseQueryService(CaseCacheService caseCacheService, DraftMessageService draftMessageService) {
         this.caseCacheService = caseCacheService;
+        this.draftMessageService = draftMessageService;
     }
 
     public DisruptionCaseResponse getCase(String caseId) {
@@ -23,15 +25,6 @@ public class CaseQueryService {
 
     public DraftMessageResponse previewDraft(String caseId) {
         CachedCaseSnapshot snapshot = caseCacheService.getSnapshot(caseId);
-        DisruptionCaseResponse disruptionCase = snapshot.disruptionCase();
-        RecommendationResponse recommendation = snapshot.recommendation();
-        String draftMessage = "Hello %s, we detected a %s on booking %s. Our current recommendation is to %s. %s"
-                .formatted(
-                        disruptionCase.customer().fullName(),
-                        disruptionCase.disruptionType().toLowerCase().replace('_', ' '),
-                        disruptionCase.bookingReference(),
-                        recommendation.action().toLowerCase().replace('_', ' '),
-                        recommendation.summary());
-        return new DraftMessageResponse(caseId, draftMessage);
+        return new DraftMessageResponse(caseId, draftMessageService.draftMessage(snapshot));
     }
 }

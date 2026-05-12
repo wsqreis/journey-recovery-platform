@@ -58,3 +58,17 @@ docker compose -f infra/docker/docker-compose.yml up -d
 - PostgreSQL-backed case and segment persistence
 - Redis-based duplicate-event protection
 - Database-backed read API integration tests
+
+## Milestone 3 scope
+
+- Richer recommendation priority and SLA context
+- Cache-backed case reads in the experience API
+- Expanded customer context in recommendation scoring
+- Focused tests for decisioning, cache snapshots, and draft formatting
+
+## Milestone 4 scope
+
+- Constrained AI-assisted message drafting behind an adapter interface
+- Prompt caching on the stable instruction prefix
+- Structured draft response parsing with deterministic fallback behavior
+- API preview endpoint kept off the core decision path

@@ -6,6 +6,7 @@ dependencies {
     implementation(project(":libs:domain"))
     implementation(project(":libs:contracts"))
 
+    implementation("com.anthropic:anthropic-java:2.2.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-cache")

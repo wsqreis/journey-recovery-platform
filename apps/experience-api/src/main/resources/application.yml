@@ -13,6 +13,13 @@ spring:
     init:
       mode: always
 
+anthropic:
+  model: claude-opus-4-7
+  enabled: false
+  drafting:
+    prompt-cache-ttl: 1h
+    timeout-seconds: 20
+
 server:
   port: 8080
 
