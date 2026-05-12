@@ -49,9 +49,7 @@ Responsibilities:
 - enforce duplicate-event protection
 
 Default local port:
-- `8080`
-
-For local development alongside the API, run it on a different port via command-line args.
+- `8081`
 
 ### Shared dependencies
 
@@ -122,7 +120,7 @@ gradle bootRun --project-dir apps/experience-api --args='--server.port=8080'
 ### 3. Start the worker
 
 ```bash
-gradle bootRun --project-dir apps/decision-worker --args='--server.port=8081'
+gradle bootRun --project-dir apps/decision-worker
 ```
 
 ### 4. Run the test suite
