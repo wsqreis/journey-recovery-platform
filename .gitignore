@@ -1,0 +1,11 @@
+.gradle/
+build/
+**/build/
+.idea/
+.vscode/
+out/
+*.iml
+*.log
+.env
+.DS_Store
+.gradle-test-kit/
